@@ -105,6 +105,7 @@ def clean_salesforce_data(row):
     row[124] = convert_numbers_to_boolean(do_not_contact)
     row[39] = convert_numbers_to_boolean(email_optout)
    
+    # if gifts include "Interpretation", update to "Interpretation of Tongues" to be read by dropdown; add a ';' to front of the list
     if gifts != '':
         gifts = gifts.replace('Interpretation', 'Interpretation of Tongues')        
         gifts = ';' + gifts
