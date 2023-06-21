@@ -55,7 +55,7 @@ def create_sf_households_final(households_raw, households_final):
             for index, row in enumerate(csv.reader(households_raw)):
                 if index == 0:
                     row = ['Household Id']+row[1:]
-                    print(row)
+                    # print(row)
                     writer.writerow(row)
                 else: 
                     writer.writerow(row)
@@ -78,7 +78,7 @@ def create_sf_household_label(households_raw, households_final, salesforce_impor
                 if primary_contact_id != 'npe01__One2OneContact__c':
                     
                     loop_through_contacts_update_label(salesforce_import,salesforce_final_contact_household_import,primary_contact_id, household_id, household_name)
-                    print(f"running... {index}")
+                    # print(f"running... {index}")
     
     endtime= datetime.now()
     delta = endtime - starttime
