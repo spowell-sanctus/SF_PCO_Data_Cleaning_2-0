@@ -172,10 +172,18 @@ if __name__ == '__main__':
     # use either 'salesforce' or 'pco' as first parameter
     # use exported data filename as second parameter
     # use desired import data filename as third parameter
+    now = datetime.now()
 
+    current_time = now.strftime("%H:%M:%S")
+    print("Start Time =", current_time)
+    
     # SF
     update_contact_export(salesforce_export, salesforce_cleaned)
     # long run - about 32 minutes
     create_sf_household_label(salesforce_households_raw, salesforce_households_final, salesforce_cleaned,salesforce_final_contact_household_import)
 
+    now2 = datetime.now()
+
+    current_time = now2.strftime("%H:%M:%S")
+    print("End Time =", current_time)
  
