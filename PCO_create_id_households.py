@@ -85,6 +85,11 @@ def clean_pco_data(row):
     primary_site = row [63]
     date_of_baptism = row[91]
     attending_since = row[67]
+    gifts = row[137]
+    
+    if gifts != '':
+        gifts = ';' + gifts
+        row[137] = gifts
 
     # if multiple phone numbers held in mobile phone cell
     if(';' in mobile_phone):

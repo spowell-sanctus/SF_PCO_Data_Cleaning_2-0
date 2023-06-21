@@ -96,6 +96,7 @@ def clean_salesforce_data(row):
     is_deceased = row[123]  
     do_not_contact = row[124]
     email_optout = row[39] 
+    gifts = row[182]
 
     # turn 0 into false, and 1 into true
     row[189] = convert_numbers_to_boolean(media_consent)
@@ -103,6 +104,12 @@ def clean_salesforce_data(row):
     row[123] = convert_numbers_to_boolean(is_deceased)
     row[124] = convert_numbers_to_boolean(do_not_contact)
     row[39] = convert_numbers_to_boolean(email_optout)
+   
+    if gifts != '':
+        gifts = gifts.replace('Interpretation', 'Interpretation of Tongues')        
+        gifts = ';' + gifts
+        row[182] =  gifts
+        
 
     # update SF Ontario mistakes
     sf_prov_mistakes = ['On', 'Ontario', '9', 'Canada', 'Ontario (ON)', 'ontario', 'Ontarip', 'ONT', 'Ont', 'OnON', 'Onterio','State (US Residents)*']
@@ -138,7 +145,6 @@ def update_contact_export(export_filename, updated_filename):
 
             # lop through the data export
             for index, row in enumerate(csv.reader(csvinput)): 
-                    
                 # add emailId as first column
                 if index == 0:
                     # add the necessary headers for the special id, association label, household id, and the import source of "SF"                       
@@ -157,7 +163,7 @@ def update_contact_export(export_filename, updated_filename):
                     # make special id
                     special_id = create_special_id(f_name, l_name, p_email,'',alt_email)
                     # write special id to the beginning of the sheet
-                    writer.writerow([special_id]+row+['SF'])
+                    writer.writerow([special_id]+row)
                     
 def print_now(message: str):
     now = datetime.now()
@@ -183,7 +189,7 @@ if __name__ == '__main__':
     
     # SF
     update_contact_export(salesforce_export, salesforce_cleaned)
-    # long run - about 32 minutes
+    # long run - about 35 minutes
     create_sf_household_label(salesforce_households_raw, salesforce_households_final, salesforce_cleaned,salesforce_final_contact_household_import)
 
     print_now('End Time')
