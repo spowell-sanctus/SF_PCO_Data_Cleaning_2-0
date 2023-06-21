@@ -42,7 +42,7 @@ def get_valid_email(email):
     if re.match(pattern,email):
         return email
     else:
-        print(f"email: {email} so placeholder email used!\n")
+        # print(f"email: {email} so placeholder email used!\n")
         return 'placeholder@sanctuschurch.com'
     
 
