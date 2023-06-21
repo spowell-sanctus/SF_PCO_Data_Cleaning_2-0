@@ -158,6 +158,12 @@ def update_contact_export(export_filename, updated_filename):
                     special_id = create_special_id(f_name, l_name, p_email,'',alt_email)
                     # write special id to the beginning of the sheet
                     writer.writerow([special_id]+row+['SF'])
+                    
+def print_now(message: str):
+    now = datetime.now()
+
+    current_time = now.strftime("%H:%M:%S")
+    print(f"{message}: {current_time}")
    
 
 if __name__ == '__main__':
@@ -172,18 +178,12 @@ if __name__ == '__main__':
     # use either 'salesforce' or 'pco' as first parameter
     # use exported data filename as second parameter
     # use desired import data filename as third parameter
-    now = datetime.now()
-
-    current_time = now.strftime("%H:%M:%S")
-    print("Start Time =", current_time)
+    
+    print_now('Start Time')
     
     # SF
     update_contact_export(salesforce_export, salesforce_cleaned)
     # long run - about 32 minutes
     create_sf_household_label(salesforce_households_raw, salesforce_households_final, salesforce_cleaned,salesforce_final_contact_household_import)
 
-    now2 = datetime.now()
-
-    current_time = now2.strftime("%H:%M:%S")
-    print("End Time =", current_time)
- 
+    print_now('End Time')
