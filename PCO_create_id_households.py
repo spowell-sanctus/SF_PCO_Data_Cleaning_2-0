@@ -205,7 +205,7 @@ if __name__ == '__main__':
     pco_export = 'PCO_People_raw.csv'
     pco_import = 'PCO_Contacts_cleaned.csv'
     pco_contact_house = 'PCO_Contacts_with_Household_associations.csv'
-    pco_households = 'PCO_Households.csv'
+    pco_households = 'PCO_Households_final.csv'
 
     # for update_contact_export:
     # use either 'salesforce' or 'pco' as first parameter
