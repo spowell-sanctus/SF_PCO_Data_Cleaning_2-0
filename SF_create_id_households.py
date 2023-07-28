@@ -1,9 +1,7 @@
 import csv
 from datetime import datetime
-import re
-import string
 
-from utils.helpers import convert_numbers_to_boolean, create_special_id, convert_pco_grades, get_letters_only, get_valid_email
+from utils.helpers import get_now, convert_numbers_to_boolean, create_special_id, runtime
 
 
 ''' Write the rows of data for the final contacts with household associations file for import'''
@@ -135,7 +133,7 @@ def clean_salesforce_data(row):
         row[176] = 'I am a guest'
 
 
-'''Handler to clean the data, create a special id, and write to a file (called separately for PCO and Salesforce)'''
+'''Handler to clean the data, create a special id, and write to a file'''
 def update_contact_export(export_filename, updated_filename):
     # open the export from pco
     with open(export_filename,'r',encoding = 'ISO-8859-1') as csvinput:
@@ -165,32 +163,32 @@ def update_contact_export(export_filename, updated_filename):
                     special_id = create_special_id(f_name, l_name, p_email,'',alt_email)
                     # write special id to the beginning of the sheet
                     writer.writerow([special_id]+row)
-                    
-def print_now(message: str):
-    now = datetime.now()
-
-    current_time = now.strftime("%H:%M:%S")
-    print(f"{message}: {current_time}")
    
 
 if __name__ == '__main__':
 
+    # export of all contacs from Salesforce
     salesforce_export = 'SF_Contacts_raw.csv'
+    # name to use for file after its been cleaned
     salesforce_cleaned = 'SF_Contacts_cleaned.csv'
+    # name to use for file after households have been associated
     salesforce_final_contact_household_import = 'SF_Contacts_with_Household_associations.csv'
+    # name of households export from Salesforce
     salesforce_households_raw = 'SF_Households_raw.csv'
+    # name of households file after cleaning
     salesforce_households_final = 'SF_Households_final.csv'
 
-    # for update_contact_export:
-    # use either 'salesforce' or 'pco' as first parameter
-    # use exported data filename as second parameter
-    # use desired import data filename as third parameter
-    
-    print_now('Start Time')
+    # logging start time
+    start = get_now('Start Time')
     
     # SF
     update_contact_export(salesforce_export, salesforce_cleaned)
     # long run - about 35 minutes
     create_sf_household_label(salesforce_households_raw, salesforce_households_final, salesforce_cleaned,salesforce_final_contact_household_import)
 
-    print_now('End Time')
+    # logging endtiem
+    end = get_now('End Time')
+    
+    # logging run time
+    runtime(start, end)
+    

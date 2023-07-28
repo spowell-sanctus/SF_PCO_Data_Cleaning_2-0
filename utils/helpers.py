@@ -1,4 +1,5 @@
 import csv
+import datetime
 import json
 import re
 import string
@@ -119,5 +120,17 @@ def get_single_CT_email(email_field):
     email = email.replace(' ', '')
     email = get_valid_email(email)
     return email
+
+
+def get_now(message: str):
+    now = datetime.now()
+
+    current_time = now.strftime("%H:%M:%S")
+    print(f"{message}: {current_time}\n")
+    return current_time
+
+
+def runtime(start:datetime, end:datetime):
+    return(end - start)
 
 
