@@ -1,8 +1,10 @@
 import csv
-import datetime
+from datetime import datetime
 import json
 import re
 import string
+
+import pandas as pd
 
 
 def write_response_file(data, filename):
@@ -127,10 +129,34 @@ def get_now(message: str):
 
     current_time = now.strftime("%H:%M:%S")
     print(f"{message}: {current_time}\n")
-    return current_time
+    return now
 
 
 def runtime(start:datetime, end:datetime):
-    return(end - start)
+    delta = end - start
+    print(f'Runtime: {delta}')
+    
+def remove_unneeded_columns(incoming_file, drop_sheet, reduced_file):
+    columns_to_drop = []    
+    drop_data = pd.read_csv(drop_sheet)
+    csv_size = len(drop_data)
+    # print(f'csv_size: {csv_size}')
+    
+    with open(drop_sheet,'r',encoding = 'ISO-8859-1') as drop_cols:  
+        # print(drop_cols)
+        for index, row in enumerate(csv.reader(drop_cols)): 
+            if 0 < index <= csv_size:
+                # print(f'col: {index} data: {row[0]}')
+                columns_to_drop.append(row[0])    
+    
+    data = pd.read_csv(incoming_file,encoding='latin-1')
+    
+    for index, col in enumerate(columns_to_drop):
+        # print(index)
+        # print(f'col: {col}')
+        data.drop(col, inplace=True, axis=1)
+        
+    # print(data)
+    data.to_csv(reduced_file, index=False)
 
 
