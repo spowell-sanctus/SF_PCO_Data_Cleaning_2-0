@@ -1,8 +1,6 @@
 ﻿empty,
-Id,
 IsDeleted,
 MasterRecordId,
-AccountId,
 Salutation,
 RecordTypeId,
 OtherStreet,
