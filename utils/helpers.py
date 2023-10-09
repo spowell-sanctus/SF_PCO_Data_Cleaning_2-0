@@ -158,5 +158,16 @@ def remove_unneeded_columns(incoming_file, drop_sheet, reduced_file):
         
     # print(data)
     data.to_csv(reduced_file, index=False)
+    
+    
+def get_string_note_date(raw_date:str):
+    raw_date = datetime.strptime(raw_date,'%Y-%m-%d %H:%M')
+    create_day = raw_date.day
+    create_month = raw_date.month_name[raw_date.month]
+    create_year = raw_date.year
+    
+    s_date = str(create_day) + " " + str(create_month) + " " + str(create_year)
+    print(f'string date: {s_date}')
+    return s_date
 
 

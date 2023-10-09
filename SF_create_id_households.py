@@ -2,7 +2,7 @@ import csv
 from datetime import datetime
 import pandas as pd
 
-from utils.helpers import get_now, convert_numbers_to_boolean, create_special_id, runtime, remove_unneeded_columns
+from utils.helpers import get_now, convert_numbers_to_boolean, create_special_id, runtime, remove_unneeded_columns, write_response_file
 
 
 ''' Write the rows of data for the final contacts with household associations file for import'''
@@ -20,11 +20,11 @@ def loop_through_contacts_update_label(salesforce_import,salesforce_final_contac
                         # print(f'0: {row[0]}\t1: {row[1]}')
                         # write the row with the association label at 42 and the household id at 43, and the source at 44
                         # if the primary_contact_id from household matches the contact Id row, it's a primary contact
-                        if row[0] == primary_contact_id and row[42] == '' and row[43] == '':
+                        if row[0] == primary_contact_id and row[43] == '' and row[44] == '':
                             # print(f'1. {row}')
                             row_to_write = row+['Primary Household Contact']+[household_id]+['SF']
                         # if the account id of the person matches the household ID must have a secondary member
-                        elif row[1] == household_id and row[42] == '' and row[43] == '':
+                        elif row[1] == household_id and row[43] == '' and row[44] == '':
                             # print(f'2. {row}')
                             row_to_write = row+['Other Household Member']+[household_id]+['SF']
                    
@@ -78,7 +78,7 @@ def create_sf_household_label(households_raw, households_final, salesforce_impor
             for index, row in enumerate(csv.reader(households_raw)):
                 
                 # data from households export
-                primary_contact_id = row[8]
+                primary_contact_id = row[9]
                 household_name = row[1]
                 household_id = row[0]
                 
@@ -100,27 +100,28 @@ def clean_salesforce_data(row):
     
     province_state = row[6]
     email_optout = row[15] 
-    do_not_call = row[16] 
-    is_deceased = row[31]  
-    do_not_contact = row[32] 
-    epi_pen_carried = row[34]
-    membership_status = row[41]
-    gifts = row[42]
-    media_consent = row[43]
+    do_not_call = row[16]
+    last_modified = row[17] 
+    is_deceased = row[32]  
+    do_not_contact = row[33] 
+    epi_pen_carried = row[35]
+    membership_status = row[42]
+    gifts = row[43]
+    media_consent = row[44]
 
     # turn 0 into false, and 1 into true
     row[15] = convert_numbers_to_boolean(email_optout)
     row[16] = convert_numbers_to_boolean(do_not_call)
-    row[31] = convert_numbers_to_boolean(is_deceased)
-    row[32] = convert_numbers_to_boolean(do_not_contact)
-    row[34] = convert_numbers_to_boolean(epi_pen_carried)
-    row[43] = convert_numbers_to_boolean(media_consent)
+    row[32] = convert_numbers_to_boolean(is_deceased)
+    row[33] = convert_numbers_to_boolean(do_not_contact)
+    row[35] = convert_numbers_to_boolean(epi_pen_carried)
+    row[44] = convert_numbers_to_boolean(media_consent)
    
     # if gifts include "Interpretation", update to "Interpretation of Tongues" to be read by dropdown; add a ';' to front of the list
     if gifts != '':
         gifts = gifts.replace('Interpretation', 'Interpretation of Tongues')        
         gifts = ';' + gifts
-        row[42] =  gifts
+        row[43] =  gifts
         
 
     # update SF Ontario mistakes
@@ -141,9 +142,9 @@ def clean_salesforce_data(row):
     
     # update salesforce statuses
     if membership_status == 'Regular Attender':
-        row[41] = 'I attend'
+        row[42] = 'I attend'
     elif membership_status == 'Visitor':
-        row[41] = 'I am a guest'
+        row[42] = 'I am a guest'
 
 
 '''Handler to clean the data, create a special id, and write to a file'''
@@ -159,16 +160,20 @@ def update_contact_export(export_filename, updated_filename):
             for index, row in enumerate(csv.reader(csvinput)): 
                 # add emailId as first column
                 if index == 0:
-                    # do_not_call = row[16]  
-                    # media_consent = row[43]
                     # province_state = row[6]
-                    # membership_status = row[41]
-                    # is_deceased = row[31]  
-                    # do_not_contact = row[32]
-                    # email_optout = row[16] 
-                    # gifts = row[42]
-                    # epi_pen_carried = row[34]
-                    # print(f'\n{do_not_call}\n{media_consent}\n{province_state}\n{membership_status}\n{is_deceased}\n{do_not_contact}\n{email_optout}\n{gifts}\n{epi_pen_carried}')
+                    # email_optout = row[15] 
+                    # do_not_call = row[16]
+                    # last_modified = row[17] 
+                    # is_deceased = row[32]  
+                    # do_not_contact = row[33] 
+                    # epi_pen_carried = row[35]
+                    # membership_status = row[42]
+                    # gifts = row[43]
+                    # media_consent = row[44]
+                    # print(f'\n{do_not_call}\n{media_consent}\n{province_state}\n{membership_status}\n{do_not_call}\n{last_modified}\n{is_deceased}\n{do_not_contact}\n{email_optout}\n{gifts}\n{epi_pen_carried}')
+                    
+                    row[17] = 'Source Last Modified Date'
+                    
                     # add the necessary headers for the special id, association label, household id, and the import source of "SF"                       
                     writer.writerow(row + ['Association Label']+['Household Id']+['Import Source'])
                     
@@ -176,11 +181,13 @@ def update_contact_export(export_filename, updated_filename):
                 else:
                    
                     clean_salesforce_data(row)
-  
+
+                    id = row[0]
                     f_name = row[2]  
                     l_name = row[3] 
                     p_email = row[13] # col AF/32
-                    alt_email = row[17] # col BG/59
+                    alt_email = row[17] # col BG/59                  
+                                        
 
                     # make special id
                     # special_id = create_special_id(f_name, l_name, p_email,'',alt_email)
@@ -196,22 +203,22 @@ if __name__ == '__main__':
     household_drop_sheet = 'SF_Household_Columns_Ignore.csv'
     
     # export of all contacts from Salesforce
-    salesforce_export = 'SF_Contacts_raw.csv'
+    salesforce_export = 'SF_Contacts_raw_23-10-02.csv'
     # export of all households from Salesforce
-    salesforce_households_raw = 'SF_Households_raw.csv'
+    salesforce_households_raw = 'SF_Households_raw_23-10-02.csv'
     
     # filenames to use for after extra columns have been removed
-    salesforce_contacts_columns_clean = 'SF_Contact_Necessary_Columns_Raw.csv'
-    salesforce_household_columns_clean = 'SF_Household_Necessary_Columns_Raw.csv'
+    salesforce_contacts_columns_clean = 'SF_Contact_Necessary_Columns_Raw_23-10-02.csv'
+    salesforce_household_columns_clean = 'SF_Household_Necessary_Columns_Raw_23-10-02.csv'
     
     # filename to use for file after its been cleaned
-    salesforce_cleaned = 'SF_Contacts_cleaned.csv'
+    salesforce_cleaned = 'SF_Contacts_cleaned_23-10-02.csv'
     
     # filename to use for file after households have been associated
-    salesforce_final_contact_household_import = 'SF_Contacts_with_Household_associations.csv'
+    salesforce_final_contact_household_import = 'SF_Contacts_w_Household_final_23-10-02.csv'
     
     # filename to use for households after cleaning
-    salesforce_households_final = 'SF_Households_final.csv'
+    salesforce_households_final = 'SF_Households_final_23-10-02.csv'
 
     # logging start time
     start = get_now('Start Time')
@@ -221,11 +228,11 @@ if __name__ == '__main__':
     remove_unneeded_columns(salesforce_export, contacts_drop_sheet, salesforce_contacts_columns_clean)
     # remove uncessary columns from households export
     remove_unneeded_columns(salesforce_households_raw, household_drop_sheet, salesforce_household_columns_clean)
-    
-    # clean the contacts file - formatting etc.
+        
+    # # clean the contacts file - formatting etc.
     update_contact_export(salesforce_contacts_columns_clean, salesforce_cleaned)
     
-    # create households from contacts data (shorter run with fewer columns - about 10 minutes - with all columns, a long run - about 35 minutes)
+    # # create households from contacts data (shorter run with fewer columns - about 10 minutes - with all columns, a long run - about 35 minutes)
     create_sf_household_label(salesforce_household_columns_clean, salesforce_households_final, salesforce_cleaned,salesforce_final_contact_household_import)
 
     # logging endtiem
